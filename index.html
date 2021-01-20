@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Parejas</title>
+  <style type="text/css">
+    *{
+      background-color: #333333;
+    }
+    #tablero{
+      background-color: #FFFFFF;
+      width:600px;
+      height:900px;
+      margin: auto;
+      margin-top:20px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      align-content: space-around;
+    }
+    .carta{
+      width: 110px;
+      height: 185px;
+      background-color: white;
+      display: inline-block;
+      text-align: center;
+      font-size: 40px;
+      padding: 10px;
+      padding-left: 10px;
+      padding-right: 10px;
+      line-height: 75px;
+    }
+    .carta:hover{
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="tablero"></div>
+  <div id="victoria"></div>
+</body>
+
+</html>
+<script type="text/javascript">
+  var tablero  = document.getElementById('tablero');
+  var aTablero = [["","","",""],["","","",""],["","","",""],["","","",""]];
+  var numAleatorios = ["The Chariot","The Chariot","The Emperor","The Emperor","The Empress","The Empress","The Fool","The Fool","The Hierophant","The Hierophant","The High Priestess","The High Priestess","The Lovers","The Lovers","The Magician","The Magician"];
+  numAleatorios.sort(function(){return Math.random()-0.5});
+  console.log(numAleatorios);
+  var tempSleep=true;
+
+  aTablero[0][0] = numAleatorios[0];
+  aTablero[0][1] = numAleatorios[1];
+  aTablero[0][2] = numAleatorios[2];
+  aTablero[0][3] = numAleatorios[3];
+
+  aTablero[1][0] = numAleatorios[4];
+  aTablero[1][1] = numAleatorios[5];
+  aTablero[1][2] = numAleatorios[6];
+  aTablero[1][3] = numAleatorios[7];
+
+  aTablero[2][0] = numAleatorios[8];
+  aTablero[2][1] = numAleatorios[9];
+  aTablero[2][2] = numAleatorios[10];
+  aTablero[2][3] = numAleatorios[11];
+
+  aTablero[3][0] = numAleatorios[12];
+  aTablero[3][1] = numAleatorios[13];
+  aTablero[3][2] = numAleatorios[14];
+  aTablero[3][3] = numAleatorios[15];
+
+
+  crearTablero();
+
+  function crearTablero(){
+    var carta= document.createElement('div');
+    for(let i=0;i<aTablero.length;i++){
+      tablero.innerHTML+="<br><br>";
+      for(let j=0;j<aTablero[i].length;j++){
+        carta = carta.cloneNode(false);
+        carta.classList="";
+        carta.classList.add('carta',''+i,''+j);
+        carta.id=i+"-"+j;
+        carta.innerHTML = "?";
+        tablero.appendChild(carta);
+      }
+    }
+    var aCartas = document.getElementsByClassName("carta");
+
+    for (var i=0;i<aCartas.length;i++) {
+      aCartas[i].addEventListener('click', clickFicha);
+    }
+  }
+
+  async function clickFicha(){
+    if(tempSleep){
+      var fila=this.classList.item(1);
+      if(this.classList.item(2) === null || this.classList.item(2)=="mostrada"){
+        var columna = this.classList.item(1);
+      } else {
+        var columna = this.classList.item(2);
+      }
+      this.classList.add('mostrada');
+      this.removeEventListener('click', clickFicha);
+      this.innerHTML="<img src='"+aTablero[fila][columna]+".jpg' height='175px' width='100px' style='padding:1px;'/>";
+      console.log(fila + " - " + columna);
+
+      for(let i=0;i<aTablero.length;i++){
+        for(let j=0;j<aTablero[i].length;j++){
+        if(i==fila && j==columna){ //SI ES LA PULSADA LA SALTA
+        }else{//SI NO ES LA MISMA QUE LA PULSADA
+
+          carta = document.getElementById(i+"-"+j);
+        if(carta.classList.contains('mostrada')){ //HAY OTRA MOSTRADA
+          tempSleep=false;
+          await sleep(500);
+          if(aTablero[fila][columna] == aTablero[i][j]){ //SON IGUALES
+            carta.classList.remove('mostrada');
+            this.classList.remove('mostrada');
+            carta.classList.add('fija');
+            this.classList.add('fija');
+          } else { //SON DISTINTAS
+            document.addEventListener("click",handler);
+            document.removeEventListener("click",handler);
+            this.addEventListener('click', clickFicha);
+            carta.addEventListener('click', clickFicha);
+            this.innerHTML="?";
+            carta.innerHTML="?";
+            this.classList.remove('mostrada');
+            carta.classList.remove('mostrada');
+          }
+        }
+
+      }
+    }
+    tempSleep=true;
+  }
+}
+
+function handler(e){
+  e.stopPropagation();
+  e.preventDefault();
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+}
+</script>
